@@ -1,0 +1,9 @@
+.ipynb_checkpoints/
+.idea/
+.vscode/
+__pycache__/
+*.py[cod]
+*$py.class
+
+*.pdf
+*.zip
