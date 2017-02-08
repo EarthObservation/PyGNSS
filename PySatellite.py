@@ -94,8 +94,8 @@ def read_sp3(sp3_fn):
     """
 
     # Dataframe column names
-    df_cols = ["dt_y", "dt_m", "dt_d", "dt_hour", "dt_min", "dt_secfra",
-               "vehicle", "coor_x", "coor_y", "coor_z", "clock",
+    df_cols = ["date_time", "vehicle",
+               "coor_x", "coor_y", "coor_z", "clock",
                "std_x", "std_y", "std_z", "std_c"]
     # Open file and prepare IO string
     try:
@@ -112,28 +112,31 @@ def read_sp3(sp3_fn):
         if not ln.strip():
             continue
         if ln.startswith('*  '):
-            cur_time = ",".join(ln.split()[1:])
+            ln_split = ln.split()[1:]
+            ct_y = int(ln_split[0])
+            ct_m = int(ln_split[1])
+            ct_d = int(ln_split[2])
+            ct_hour = int(ln_split[3])
+            ct_min = int(ln_split[4])
+            ct_secmic = float(ln_split[5])
+            ct_sec = int(ct_secmic)
+            ct_mic = int((ct_secmic-ct_sec)*1e6)
+            ct = datetime.datetime(ct_y, ct_m, ct_d,
+                                   ct_hour, ct_min, ct_sec, ct_mic)
+            cur_time = time_gps2utc(ct)
             continue
         if ln.startswith('EOF'):
             continue
         if cur_time is None:
             print('NO time found')
             sys.exit(1)
-        spf_s.write(cur_time + "," + ",".join(ln.split()[:9]) + "\n")
+        spf_s.write(str(cur_time) + "," + ",".join(ln.split()[:9]) + "\n")
     spf_s.seek(0)
 
     # Create initial dataframe
     sp3_df = pd.read_csv(spf_s, header=None,
                          names=df_cols)
-    sp3_df["dt_sec"] = sp3_df["dt_secfra"].astype(int)
-    sp3_df["dt_mic"] = ((sp3_df["dt_secfra"] - sp3_df["dt_sec"]) * 1e6).astype(int)
-    sp3_df['date_time'] = \
-        sp3_df[['dt_y', 'dt_m', 'dt_d',
-                "dt_hour", "dt_min", "dt_sec",
-                "dt_mic"]].apply\
-            (lambda s: datetime.datetime(*s), axis=1)
-    sp3_df.drop(['dt_y', 'dt_m', 'dt_d',
-                "dt_hour", "dt_min", "dt_sec",
-                "dt_mic", "dt_secfra"], axis=1, inplace=True)
-    # sp3_df.set_index('date_time')
+    sp3_df["date_time"] = pd.to_datetime(sp3_df["date_time"])
+    sp3_df["vehicle"] = sp3_df["vehicle"].map(lambda x: str(x)[1:])
+    sp3_df.set_index('date_time')
     return sp3_df
