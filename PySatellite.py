@@ -306,3 +306,62 @@ def convert_ecef2lla(df, remove=False):
     if remove:
         df_out.drop(["coor_x", "coor_y", "coor_z"], axis=1, inplace=True)
     return df_out
+
+# Write dataframe to KML
+def write_kml(df, fn):
+    """
+    write_kml: Write dataframe to KML file
+
+    Args:
+        df: Dataframe to be written
+        fn: Output file name
+
+    Returns:
+        res: True on sucess
+    """
+
+    # TODO Check if filename OK
+
+    # TODO Check if dataframe has lat lon alt
+
+    # Group dataframe
+    sat_pos = df.groupby(level=[0])
+    # sat_pos = df.drop(["coor_x", "coor_y", "coor_z"]).groupby(level=[0])
+
+    # Open file for writing
+    f = open(fn, 'w')
+    f.write("<?xml version = '1.0' encoding = 'UTF-8'?>\n")
+    f.write("<kml xmlns = 'http://www.opengis.net/kml/2.2'>\n")
+    f.write("<Document>\n")
+    f.write("   <name>" + "GPS data" + "</name>\n")
+    # Iterate in over dataframe
+    for name, group in sat_pos:
+    #     group.to_csv("%s_sp3_positions.csv" % name)
+        # Iterate in group
+        for index, row in group.iterrows():
+            f.write("   <Placemark>\n")
+            f.write("       <name>" + name + "</name>\n")
+            # f.write("       <name>" + row['date_time'] + "</name>\n")
+            f.write("       <description>"
+                    # 'TM_e: ' + "{:.3f}".format(row['TM_e']) + '\n' +
+                    # 'TM_n: ' + "{:.3f}".format(row['TM_n']) + '\n' +
+                    # 'TM_H: ' + "{:.3f}".format(row['TM_H']) + '\n' +
+                    # 'GDOP: ' + "{:.1f}".format(row['GDOP']) + '\n' +
+                    # 'PDOP: ' + "{:.1f}".format(row['PDOP']) + '\n' +
+                    "</description>\n")
+            f.write("       <Point>\n")
+            f.write("           <coordinates>" + str(row['long']) + "," + str(row['lat']) + "," + str(
+                0) + "</coordinates>\n")
+            # f.write("           <coordinates>" + str(row['long']) + "," + str(row['lat']) + "," + str(
+            #     1000*row['alt']) + "</coordinates>\n")
+            # f.write("           <altitudeMode>absolute</altitudeMode>\n")
+            f.write("       </Point>\n")
+            f.write("   </Placemark>\n")
+    # KML footer
+    f.write("</Document>\n")
+    f.write("</kml>\n")
+    # Close file
+    f.close()
+    print("File Created ", fn)
+
+    return True
