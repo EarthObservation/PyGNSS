@@ -2,7 +2,7 @@
 #
 # Functions for downloading , time conversion, reprojection and visualisation of precise GNSS orbits
 #
-# Krištof Oštir and Polona Pavličič Prešeren
+# Krištof Oštir and Polona Pavlovčič Prešeren
 # University of Ljubljana, Faculty of Civil and Geodetic Engineering
 # (c) 2017
 
@@ -334,34 +334,114 @@ def write_kml(df, fn):
     f.write("<kml xmlns = 'http://www.opengis.net/kml/2.2'>\n")
     f.write("<Document>\n")
     f.write("   <name>" + "GPS data" + "</name>\n")
+    kml_style = """        <Style id="s_ylw-pushpin">
+        <IconStyle>
+            <color>ff00ffff</color>
+            <scale>10</scale>
+            <Icon>
+                <href>https://www.licor.com/env/graphics/icons/satellite.png</href>
+            </Icon>
+            <hotSpot x="20" y="2" xunits="pixels" yunits="pixels"/>
+        </IconStyle>
+        </Style>
+        <StyleMap id="m_ylw-pushpin">
+            <Pair>
+                <key>normal</key>
+                <styleUrl>#s_ylw-pushpin</styleUrl>
+            </Pair>
+            <Pair>
+                <key>highlight</key>
+                <styleUrl>#s_ylw-pushpin_hl</styleUrl>
+            </Pair>
+        </StyleMap>
+        <Style id="s_ylw-pushpin_hl">
+            <IconStyle>
+                <color>ff00ffff</color>
+                <scale>5</scale>
+                <Icon>
+                    <href>http://maps.google.com/mapfiles/kml/pushpin/ylw-pushpin.png</href>
+                </Icon>
+                <hotSpot x="20" y="2" xunits="pixels" yunits="pixels"/>
+            </IconStyle>
+        </Style>
+    """
+    f.write(kml_style)
     # Iterate in over dataframe
     for name, group in sat_pos:
-    #     group.to_csv("%s_sp3_positions.csv" % name)
+        #     group.to_csv("%s_sp3_positions.csv" % name)
         # Iterate in group
+        	
+
+        f.write("   <Folder>\n")
+        f.write("   <name>" + name + "</name>\n")
         for index, row in group.iterrows():
             f.write("   <Placemark>\n")
             f.write("       <name>" + name + "</name>\n")
             # f.write("       <name>" + row['date_time'] + "</name>\n")
-            f.write("       <description>"
-                    # 'TM_e: ' + "{:.3f}".format(row['TM_e']) + '\n' +
-                    # 'TM_n: ' + "{:.3f}".format(row['TM_n']) + '\n' +
-                    # 'TM_H: ' + "{:.3f}".format(row['TM_H']) + '\n' +
-                    # 'GDOP: ' + "{:.1f}".format(row['GDOP']) + '\n' +
-                    # 'PDOP: ' + "{:.1f}".format(row['PDOP']) + '\n' +
-                    "</description>\n")
+            dt = index[1]
+            f.write("       <TimeStamp>\n")
+            f.write("           <when>%s</when>\n" % (dt.strftime('%Y-%m-%dT%H:%M:%SZ')))
+            f.write("       </TimeStamp>\n")
+            f.write("       <styleUrl>#m_ylw-pushpin</styleUrl>\n")
+            # f.write("       <description>"
+            #         # 'TM_e: ' + "{:.3f}".format(row['TM_e']) + '\n' +
+            #         # 'TM_n: ' + "{:.3f}".format(row['TM_n']) + '\n' +
+            #         # 'TM_H: ' + "{:.3f}".format(row['TM_H']) + '\n' +
+            #         # 'GDOP: ' + "{:.1f}".format(row['GDOP']) + '\n' +
+            #         # 'PDOP: ' + "{:.1f}".format(row['PDOP']) + '\n' +
+            #         "</description>\n")
             f.write("       <Point>\n")
-            f.write("           <coordinates>" + str(row['long']) + "," + str(row['lat']) + "," + str(
-                0) + "</coordinates>\n")
+            f.write("           <altitudeMode>absolute</altitudeMode>\n")
+            f.write("           <coordinates>" + str(row['long']) + "," + str(row['lat']) + "," +
+                    str(1000*row['alt']) + "</coordinates>\n")
             # f.write("           <coordinates>" + str(row['long']) + "," + str(row['lat']) + "," + str(
             #     1000*row['alt']) + "</coordinates>\n")
             # f.write("           <altitudeMode>absolute</altitudeMode>\n")
             f.write("       </Point>\n")
+            f.write("       <altitudeMode>absolute</altitudeMode>\n")
             f.write("   </Placemark>\n")
+        f.write("   </Folder>\n")
     # KML footer
+    # f.write("</Document>\n")
+    # f.write("</kml>\n")
+    # Close file
+
+    # Iterate in over dataframe
+    # for name, group in sat_pos:
+    # #     group.to_csv("%s_sp3_positions.csv" % name)
+    #     # Iterate in group
+    #     f.write("   <Placemark>\n")
+    #     f.write("       <name>" + name + "</name>\n")
+    #     # f.write("       <name>" + row['date_time'] + "</name>\n")
+    #     f.write("       <description>"
+    #         # 'TM_e: ' + "{:.3f}".format(row['TM_e']) + '\n' +
+    #         # 'TM_n: ' + "{:.3f}".format(row['TM_n']) + '\n' +
+    #         # 'TM_H: ' + "{:.3f}".format(row['TM_H']) + '\n' +
+    #         # 'GDOP: ' + "{:.1f}".format(row['GDOP']) + '\n' +
+    #         # 'PDOP: ' + "{:.1f}".format(row['PDOP']) + '\n' +
+    #     "</description>\n")
+    #     f.write("       <Polygon>\n")
+    #     f.write("           <altitudeMode>absolute</altitudeMode>\n")
+    #     f.write("           <outerBoundaryIs>\n")
+    #     f.write("               <LinearRing>\n")
+    #     f.write("                  <coordinates>\n")
+    #     for index, row in group.iterrows():
+    #         f.write("                      " + str(row['long']) + "," + str(row['lat']) + "," +
+    #                 str(1000*row['alt']) + "\n")
+    #         # f.write("           <coordinates>" + str(row['long']) + "," + str(row['lat']) + "," + str(
+    #         #     1000*row['alt']) + "</coordinates>\n")
+    #     f.write("                  </coordinates>\n")
+    #     f.write("               </LinearRing>\n")
+    #     f.write("           </outerBoundaryIs>\n")
+    #     f.write("       </Polygon>\n")
+    #     # f.write("       </Point>\n")
+    #     f.write("   </Placemark>\n")
+    # # KML footer
     f.write("</Document>\n")
     f.write("</kml>\n")
     # Close file
     f.close()
+
     print("File Created ", fn)
 
     return True
