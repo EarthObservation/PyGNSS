@@ -21,7 +21,7 @@ kml_file = "D:/Kristof/Python/PySatellite/Data/igu19355_06.kml"
 sp3_df = pys.read_sp3(data_file)
 
 # Reproject
-sp3_df_lla = pys.convert_ecef2lla(sp3_df, False)
+sp3_df_lla = pys.convert_ecef2lla(sp3_df, False, True)
 
 # Display data
 print(sp3_df.head())

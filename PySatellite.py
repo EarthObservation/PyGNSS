@@ -289,7 +289,7 @@ def reproject_ecef2lla(args):
 
 
 # Convert coordinates from ECEF to lat, long, alt
-def convert_ecef2lla(df, remove=False):
+def convert_ecef2lla(df, remove=False, usegmsd=False):
     """
     convert_ecef2lla: Convert coordinates in dataframe from ECEF to lat, long, alt
 
@@ -305,7 +305,35 @@ def convert_ecef2lla(df, remove=False):
     df_out = df.join(df_lla)
     if remove:
         df_out.drop(["coor_x", "coor_y", "coor_z"], axis=1, inplace=True)
+    if usegmsd:
+        df_out["lat"] = df_out["lat"] + time_utm2gmst(df_out.index.get_level_values(1))
     return df_out
+
+
+# Correct latitude with Greenwich Mean Sidereal Time
+def time_utm2gmst(dt):
+    """
+    time_utm2gmst: Correct latitude with Greenwich Mean Sidereal Time
+    
+    Args:
+        dt: Time
+    
+    Returns:
+        gmst: Greenwich Mean Sidereal Time correction in degrees
+    """
+
+    # Constants
+    dt_century = 36525 # days in century
+    dt_2000 = datetime.datetime(2000, 1, 1, 12)
+    omega_e = 7.2921150E-5 # rad/s
+
+    dt_cfrac = (dt - dt_2000).days / dt_century
+    dt_time = dt.second + (dt.minute * 60) + (dt.hour * 3600)
+    gmst = ((-6.2E-6 * dt_cfrac + 0.093104) * dt_cfrac + 8640184.812866) * dt_cfrac + 24110.54841
+    gmst = (gmst * (np.pi / 43200) + omega_e * dt_time)
+
+    return gmst
+
 
 # Write dataframe to KML
 def write_kml(df, fn):
@@ -330,10 +358,13 @@ def write_kml(df, fn):
 
     # Open file for writing
     f = open(fn, 'w')
-    f.write("<?xml version = '1.0' encoding = 'UTF-8'?>\n")
-    f.write("<kml xmlns = 'http://www.opengis.net/kml/2.2'>\n")
-    f.write("<Document>\n")
-    f.write("   <name>" + "GPS data" + "</name>\n")
+    kml_head = """<?xml version = '1.0' encoding = 'UTF-8'?>
+    <kml xmlns = 'http://www.opengis.net/kml/2.2'>
+    <Document>
+    """
+    kml_foot = """</Document>
+    </kml>
+    """
     kml_style = """        <Style id="s_ylw-pushpin">
         <IconStyle>
             <color>ff00ffff</color>
@@ -365,13 +396,12 @@ def write_kml(df, fn):
             </IconStyle>
         </Style>
     """
+    # Writing KML
+    f.write(kml_head)
+    f.write("   <name>" + "GPS data" + "</name>\n")
     f.write(kml_style)
-    # Iterate in over dataframe
+    # Iterate in over dataframe to position satellites at time
     for name, group in sat_pos:
-        #     group.to_csv("%s_sp3_positions.csv" % name)
-        # Iterate in group
-        	
-
         f.write("   <Folder>\n")
         f.write("   <name>" + name + "</name>\n")
         for index, row in group.iterrows():
@@ -383,62 +413,37 @@ def write_kml(df, fn):
             f.write("           <when>%s</when>\n" % (dt.strftime('%Y-%m-%dT%H:%M:%SZ')))
             f.write("       </TimeStamp>\n")
             f.write("       <styleUrl>#m_ylw-pushpin</styleUrl>\n")
-            # f.write("       <description>"
-            #         # 'TM_e: ' + "{:.3f}".format(row['TM_e']) + '\n' +
-            #         # 'TM_n: ' + "{:.3f}".format(row['TM_n']) + '\n' +
-            #         # 'TM_H: ' + "{:.3f}".format(row['TM_H']) + '\n' +
-            #         # 'GDOP: ' + "{:.1f}".format(row['GDOP']) + '\n' +
-            #         # 'PDOP: ' + "{:.1f}".format(row['PDOP']) + '\n' +
-            #         "</description>\n")
             f.write("       <Point>\n")
             f.write("           <altitudeMode>absolute</altitudeMode>\n")
             f.write("           <coordinates>" + str(row['long']) + "," + str(row['lat']) + "," +
                     str(1000*row['alt']) + "</coordinates>\n")
-            # f.write("           <coordinates>" + str(row['long']) + "," + str(row['lat']) + "," + str(
-            #     1000*row['alt']) + "</coordinates>\n")
-            # f.write("           <altitudeMode>absolute</altitudeMode>\n")
             f.write("       </Point>\n")
             f.write("       <altitudeMode>absolute</altitudeMode>\n")
             f.write("   </Placemark>\n")
         f.write("   </Folder>\n")
-    # KML footer
-    # f.write("</Document>\n")
-    # f.write("</kml>\n")
-    # Close file
 
-    # Iterate in over dataframe
-    # for name, group in sat_pos:
-    # #     group.to_csv("%s_sp3_positions.csv" % name)
-    #     # Iterate in group
-    #     f.write("   <Placemark>\n")
-    #     f.write("       <name>" + name + "</name>\n")
-    #     # f.write("       <name>" + row['date_time'] + "</name>\n")
-    #     f.write("       <description>"
-    #         # 'TM_e: ' + "{:.3f}".format(row['TM_e']) + '\n' +
-    #         # 'TM_n: ' + "{:.3f}".format(row['TM_n']) + '\n' +
-    #         # 'TM_H: ' + "{:.3f}".format(row['TM_H']) + '\n' +
-    #         # 'GDOP: ' + "{:.1f}".format(row['GDOP']) + '\n' +
-    #         # 'PDOP: ' + "{:.1f}".format(row['PDOP']) + '\n' +
-    #     "</description>\n")
-    #     f.write("       <Polygon>\n")
-    #     f.write("           <altitudeMode>absolute</altitudeMode>\n")
-    #     f.write("           <outerBoundaryIs>\n")
-    #     f.write("               <LinearRing>\n")
-    #     f.write("                  <coordinates>\n")
-    #     for index, row in group.iterrows():
-    #         f.write("                      " + str(row['long']) + "," + str(row['lat']) + "," +
-    #                 str(1000*row['alt']) + "\n")
-    #         # f.write("           <coordinates>" + str(row['long']) + "," + str(row['lat']) + "," + str(
-    #         #     1000*row['alt']) + "</coordinates>\n")
-    #     f.write("                  </coordinates>\n")
-    #     f.write("               </LinearRing>\n")
-    #     f.write("           </outerBoundaryIs>\n")
-    #     f.write("       </Polygon>\n")
-    #     # f.write("       </Point>\n")
-    #     f.write("   </Placemark>\n")
-    # # KML footer
-    f.write("</Document>\n")
-    f.write("</kml>\n")
+    # Iterate in over dataframe do draw orbits
+    for name, group in sat_pos:
+        # Iterate in group
+        f.write("   <Placemark>\n")
+        f.write("       <name>" + name + "</name>\n")
+        f.write("       <description>" + "</description>\n")
+        f.write("       <Polygon>\n")
+        f.write("           <altitudeMode>absolute</altitudeMode>\n")
+        f.write("           <outerBoundaryIs>\n")
+        f.write("               <LinearRing>\n")
+        f.write("                  <coordinates>\n")
+        for index, row in group.iterrows():
+            f.write("                      " + str(row['long']) + "," + str(row['lat']) + "," +
+                    str(1000*row['alt']) + "\n")
+        f.write("                  </coordinates>\n")
+        f.write("               </LinearRing>\n")
+        f.write("           </outerBoundaryIs>\n")
+        f.write("       </Polygon>\n")
+        f.write("   </Placemark>\n")
+
+    # KML footer
+    f.write(kml_foot)
     # Close file
     f.close()
 
