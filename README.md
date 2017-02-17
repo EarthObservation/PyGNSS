@@ -20,7 +20,7 @@ The SP3 file has to be read and parsed to pandas DataFrame.
 sp3_df = pys.read_sp3(orbit_fn)
 ```
 
-We get a dataframe similar to this.
+We get a DataFrame similar to this.
 ```
 vehicle,date_time,coor_x,coor_y,coor_z,clock,std_x,std_y,std_z,std_c
 G01,2017-02-16 05:59:42,20817.041254,11237.897309,12227.333238,49.358711,7,9,7.0,209
@@ -35,7 +35,7 @@ sp3_df_lla = pys.convert_ecef2lla(sp3_df, True, True) # Remove original coordina
 sp3_df_lla = pys.convert_ecef2lla(sp3_df) # Do not remove original coordinates, do not consider GMST, default
 ```
 
-The satellite orbit data looks like this after conversion.
+The satellite orbit DataFrame looks like this after conversion.
 ```
 vehicle,date_time,clock,std_x,std_y,std_z,std_c,lat,long,alt
 G01,2017-02-16 05:59:42,49.358711,7,9,7.0,209,27.370416376559717,-6327.494098728924,20256.18947880152
