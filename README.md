@@ -21,7 +21,7 @@ sp3_df = pys.read_sp3(orbit_fn)
 ```
 
 We get a dataframe similar to this.
-```python
+```
 vehicle,date_time,coor_x,coor_y,coor_z,clock,std_x,std_y,std_z,std_c
 G01,2017-02-16 05:59:42,20817.041254,11237.897309,12227.333238,49.358711,7,9,7.0,209
 G02,2017-02-16 05:59:42,-12699.223656,-22142.330686,8454.724099,474.920193,4,9,8.0,218
@@ -36,7 +36,7 @@ sp3_df_lla = pys.convert_ecef2lla(sp3_df) # Do not remove original coordinates, 
 ```
 
 The satellite orbit data looks like this after conversion.
-```python
+```
 vehicle,date_time,clock,std_x,std_y,std_z,std_c,lat,long,alt
 G01,2017-02-16 05:59:42,49.358711,7,9,7.0,209,27.370416376559717,-6327.494098728924,20256.18947880152
 G02,2017-02-16 05:59:42,474.920193,4,9,8.0,218,18.353417008491363,-6475.691535287722,20513.295509668373
