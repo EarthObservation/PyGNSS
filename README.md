@@ -1,13 +1,13 @@
-# PySatellite - Analysis and visualization of GNSS precise orbits
+# PySatellite - Analysis and visualization of precise GNSS orbits
 
 Functions for downloading, time conversion, reprojection and visualization of precise GNSS orbits.
 
-First we have to load the package with
+First we have to import the package.
 ```python
 import PySatellite as pys
 ```
 
-We are using the standard libraries, like pandas, datetime, numpy, io, ftplib, subprocess, and os. In addition pyproj is required for reprojection.
+We are using standard libraries, like `pandas`, `datetime`, `numpy`, `io`, `ftplib`, `subprocess`, and `os`. In addition `pyproj` is required for reprojection.
 
 Than we download current satellite precise orbit data from FTP.
 ```python
@@ -29,7 +29,7 @@ G03,2017-02-16 05:59:42,15161.772458000001,2522.990136,21654.710355000003,-107.4
 G05,2017-02-16 05:59:42,-4801.552475,-21052.092561,-15417.360146,-60.386646999999996,11,6,7.0,209
 ```
 
-We have to convert from ECEF to longitude, latitude and altitude. Original coordinates can be deleted or left in the DataFrame. In addition we can consider Greenwich Mean Sidereal Time.
+Next we convert ECEF coordinates to longitude, latitude and altitude. Original coordinates can be deleted or left in the DataFrame. In addition we can consider Greenwich Mean Sidereal Time.
 ```python
 sp3_df_lla = pys.convert_ecef2lla(sp3_df, True, True) # Remove original coordinates, consider GMST
 sp3_df_lla = pys.convert_ecef2lla(sp3_df) # Do not remove original coordinates, do not consider GMST, default
