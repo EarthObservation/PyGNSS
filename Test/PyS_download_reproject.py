@@ -10,7 +10,7 @@
 import PySatellite as pys
 
 # Parameters
-data_folder = "D:/Kristof/Python/PySatellite/Data/"
+data_folder = "D:/Kristof/Python/PySatellite/Data"
 data_file = "D:/Kristof/Python/PySatellite/Data/igu19355_06.sp3"
 kml_file = "D:/Kristof/Python/PySatellite/Data/igu19355_06.kml"
 

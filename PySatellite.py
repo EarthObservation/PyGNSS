@@ -139,7 +139,9 @@ def download_sp3(**kwargs):
     data_folder = kwargs.get('data_folder', "")
     if not os.path.exists(data_folder):
         print('Data folder %s does not exist, using current folder.' % data_folder)
-        data_folder = ""
+        data_folder = os.getcwd()
+    data_folder += "/"
+
 
     # get GPS time parameters
     gpsW, _, gpsD, gpsS = time_gps2wdt(dt)
@@ -306,7 +308,7 @@ def convert_ecef2lla(df, remove=False, usegmsd=False):
     if remove:
         df_out.drop(["coor_x", "coor_y", "coor_z"], axis=1, inplace=True)
     if usegmsd:
-        df_out["lat"] = df_out["lat"] + time_utm2gmst(df_out.index.get_level_values(1))
+        df_out["long"] = df_out["long"] - time_utm2gmst(df_out.index.get_level_values(1))
     return df_out
 
 
@@ -330,7 +332,7 @@ def time_utm2gmst(dt):
     dt_cfrac = (dt - dt_2000).days / dt_century
     dt_time = dt.second + (dt.minute * 60) + (dt.hour * 3600)
     gmst = ((-6.2E-6 * dt_cfrac + 0.093104) * dt_cfrac + 8640184.812866) * dt_cfrac + 24110.54841
-    gmst = (gmst * (np.pi / 43200) + omega_e * dt_time)
+    gmst = np.rad2deg(gmst * (np.pi / 43200) + omega_e * dt_time)
 
     return gmst
 
@@ -348,16 +350,27 @@ def write_kml(df, fn):
         res: True on sucess
     """
 
-    # TODO Check if filename OK
-
-    # TODO Check if dataframe has lat lon alt
+    # Check if dataframe has lat lon alt
+    if not "lat" in df.columns.tolist():
+        print("Missing latitude.")
+        raise
+    if not "long" in df.columns.tolist():
+        print("Missing longitude.")
+        raise
+    if not "alt" in df.columns.tolist():
+        print("Missing altitude.")
+        raise
 
     # Group dataframe
     sat_pos = df.groupby(level=[0])
     # sat_pos = df.drop(["coor_x", "coor_y", "coor_z"]).groupby(level=[0])
 
     # Open file for writing
-    f = open(fn, 'w')
+    try:
+        f = open(fn, 'w')
+    except:
+        print("Can not create", fn)
+        raise
     kml_head = """<?xml version = '1.0' encoding = 'UTF-8'?>
     <kml xmlns = 'http://www.opengis.net/kml/2.2'>
     <Document>
