@@ -1,5 +1,6 @@
-# PySatellite - Analysis an visualisation of GNSS precise orbits
+# PySatellite - Analysis and visualization of GNSS precise orbits
 
+<<<<<<< HEAD
 Functions for downloading, time conversion, reprojection and visualisation of precise GNSS orbits.
 
 First we have to load the package with
@@ -36,6 +37,9 @@ Write data to KML.
 pys.write_kml(sp3_df_lla, kml_file)
 
 KML can be opened in Google Earth. Orbits are displayed as lines for each of the GPS satellites. In addition for every satellite we have positions iu time. Google Earth time feature enables navigation.
+=======
+Functions for downloading, time conversion, reprojection, and visualization of precise GNSS orbits
+>>>>>>> origin/master
 
 Krištof Oštir and Polona Pavlovčič Prešeren  
 University of Ljubljana, Faculty of Civil and Geodetic Engineering  
