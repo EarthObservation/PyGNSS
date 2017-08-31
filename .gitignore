@@ -1,6 +1,6 @@
 .ipynb_checkpoints/
 .idea/
-.vscode/
+.vs/
 __pycache__/
 Data/
 References/
