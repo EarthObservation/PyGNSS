@@ -1,4 +1,4 @@
-# PySatellite test
+# PyGNSS test
 #
 # Download SP3, reproject and extract by satellite
 #

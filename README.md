@@ -1,4 +1,4 @@
-# PySatellite - Analysis and visualization of precise GNSS orbits
+# PyGNSS - Analysis and visualization of precise GNSS orbits
 
 Functions for downloading, time conversion, reprojection and visualization of precise GNSS orbits. GPS satellites are supported currently, Galileo and Baidu are planned.
 
