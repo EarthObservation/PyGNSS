@@ -4,20 +4,20 @@ Functions for downloading, time conversion, reprojection and visualization of pr
 
 First we have to import the package.
 ```python
-import PySatellite as pys
+import PyGNSS as pyg
 ```
 
 We are using standard libraries, like `pandas`, `datetime`, `numpy`, `io`, `ftplib`, `subprocess`, and `os`. In addition `pyproj` is required for reprojection.
 
 Than we download current satellite precise orbit data from FTP.
 ```python
-orbit_fn = pys.download_sp3() # Current time
-orbit_fn = pys.download_sp3(datetime, data_folder) # Specify time and location
+orbit_fn = pyg.download_sp3() # Current time
+orbit_fn = pyg.download_sp3(datetime, data_folder) # Specify time and location
 ```
 
 The SP3 file has to be read and parsed to pandas DataFrame.
 ```python
-sp3_df = pys.read_sp3(orbit_fn)
+sp3_df = pyg.read_sp3(orbit_fn)
 ```
 
 We get a DataFrame similar to this.
@@ -31,8 +31,8 @@ G05,2017-02-16 05:59:42,-4801.552475,-21052.092561,-15417.360146,-60.38664699999
 
 Next we convert ECEF coordinates to longitude, latitude and altitude. Original coordinates can be deleted or left in the DataFrame. In addition we can consider Greenwich Mean Sidereal Time.
 ```python
-sp3_df_lla = pys.convert_ecef2lla(sp3_df, True, True) # Remove original coordinates, consider GMST
-sp3_df_lla = pys.convert_ecef2lla(sp3_df) # Do not remove original coordinates, do not consider GMST, default
+sp3_df_lla = pyg.convert_ecef2lla(sp3_df, True, True) # Remove original coordinates, consider GMST
+sp3_df_lla = pyg.convert_ecef2lla(sp3_df) # Do not remove original coordinates, do not consider GMST, default
 ```
 
 The satellite orbit DataFrame looks like this after conversion.
@@ -47,7 +47,7 @@ G05,2017-02-16 05:59:42,-60.386646999999996,11,6,7.0,209,-35.57079350017397,-645
 This DataFrame can be written to KML and later visualized in Google Earth. Orbits are displayed as lines for each of the GPS satellites. In addition for every satellite we have positions in time. Google Earth time feature enables time navigation.
 ```python
 kml_fn = orbit_fn.split(".")[0]+".kml"
-pys.write_kml(sp3_df_lla, kml_fn)
+pyg.write_kml(sp3_df_lla, kml_fn)
 ```
 
 ![Google Earth Orbits](Docs/ge_orbits.png)

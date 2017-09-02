@@ -7,21 +7,21 @@
 # (c) 2017
 
 # Imports
-import PySatellite as pys
+import PyGNSS as pyg
 
 # Parameters
-data_folder = "D:/Kristof/Python/PySatellite/Data"
-data_file = "D:/Kristof/Python/PySatellite/Data/igu19355_06.sp3"
-kml_file = "D:/Kristof/Python/PySatellite/Data/igu19355_06.kml"
+data_folder = "D:/Kristof/Python/PyGNSS/Data"
+data_file = "D:/Kristof/Python/PyGNSS/Data/igu19355_06.sp3"
+kml_file = "D:/Kristof/Python/PyGNSS/Data/igu19355_06.kml"
 
 # Read current SP3 for current time
-# sp3_fn = pys.download_sp3(data_folder="D:/Kristof/Python/PySatellite/Data/")
+# sp3_fn = pyg.download_sp3(data_folder="D:/Kristof/Python/PyGNSS/Data/")
 
 # Read data to dataframe
-sp3_df = pys.read_sp3(data_file)
+sp3_df = pyg.read_sp3(data_file)
 
 # Reproject
-sp3_df_lla = pys.convert_ecef2lla(sp3_df, False, True)
+sp3_df_lla = pyg.convert_ecef2lla(sp3_df, False, True)
 
 # Display data
 print(sp3_df.head())
@@ -32,4 +32,4 @@ print(sp3_df_lla.head())
 # for name, group in sat_pos.groupby(level=[0]):
 #     group.to_csv("%s_sp3_positions.csv" % name)
 
-pys.write_kml(sp3_df_lla, kml_file)
+pyg.write_kml(sp3_df_lla, kml_file)
