@@ -6,6 +6,9 @@ Data/
 References/
 *.py[cod]
 *$py.class
-
+# Extensions
+*.sln
+*.pyproj
+*.user
 *.pdf
 *.zip
